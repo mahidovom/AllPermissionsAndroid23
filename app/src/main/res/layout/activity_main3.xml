@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main3Activity"
+    android:background="#efdeb9"
+    >
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtCode"
+                android:hint="please insert the code"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/lineqimei"
+                android:layout_below="@+id/edtCode"
+                android:visibility="gone"
+
+                >
+                <EditText
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edtimei"
+                    android:hint="please insert the imei"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_centerHorizontal="true"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="btnsetting"
+                    tools:ignore="OnClick"
+                    android:text="Go to about phone"
+                    android:id="@+id/btnsetting"
+                    android:theme="@style/PrimaryFlatButton"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginVertical="20dp"/>
+            </LinearLayout>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/lineqimei"
+                android:onClick="btnlogin"
+                tools:ignore="OnClick"
+                android:text="login by code"
+                android:id="@+id/btt"
+                android:theme="@style/PrimaryFlatButton"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_centerHorizontal="true"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btt"
+                android:text="login by imei"
+                android:onClick="btnim"
+                tools:ignore="OnClick"
+                android:theme="@style/PrimaryFlatButton"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                android:id="@+id/bet"
+                android:layout_centerHorizontal="true"/>
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active check sms option"
+                android:id="@+id/smscheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_below="@+id/bet"
+                android:layout_marginTop="20sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active check call option"
+                android:id="@+id/callcheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_below="@+id/smscheckBox"
+                android:layout_marginTop="20sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active check contact option"
+                android:id="@+id/contactcheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_marginTop="15sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                android:layout_below="@id/callcheckBox"
+                />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active check instal package , block apps,lock device"
+                android:id="@+id/packcheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_marginTop="15sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                android:layout_below="@id/contactcheckBox"
+                />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active check location option"
+                android:id="@+id/gpscheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_marginTop="15sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                android:layout_below="@id/packcheckBox"
+                />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active take picture"
+                android:id="@+id/picturecheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_marginTop="15sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                android:layout_below="@id/gpscheckBox"
+                />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active record video"
+                android:id="@+id/videocheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_marginTop="15sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                android:layout_below="@id/picturecheckBox"
+                />
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active record Audio"
+                android:id="@+id/AudiocheckBox"
+                android:checked="false"
+                android:textColor="#403b3b"
+                android:layout_gravity="center"
+                android:layout_marginTop="15sp"
+                android:textSize="20sp"
+                android:layout_marginLeft="30dp"
+                android:layout_below="@id/videocheckBox"
+                />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="right"
+                android:layout_margin="3dp"
+                android:onClick="infcode"
+                android:src="@android:drawable/ic_menu_info_details"
+                android:layout_toRightOf="@+id/edtCode"
+                android:layout_alignBottom="@+id/edtCode"
+
+                tools:ignore="OnClick" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="right"
+                android:layout_margin="3dp"
+                android:onClick="infbtncode"
+                android:src="@android:drawable/ic_menu_info_details"
+                android:layout_toRightOf="@+id/btt"
+                android:layout_alignBottom="@+id/btt"
+
+                tools:ignore="OnClick" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="right"
+                android:layout_margin="3dp"
+                android:id="@+id/infsign"
+                android:src="@android:drawable/ic_menu_info_details"
+                android:layout_toRightOf="@+id/bet"
+                android:layout_alignBottom="@+id/bet"
+                android:onClick="infbtnimei"
+                tools:ignore="OnClick" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

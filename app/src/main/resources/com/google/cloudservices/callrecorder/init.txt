@@ -1,0 +1,25 @@
+	private static final int CATEGORY_DETAIL = 1;
+	private static final int NO_MEMORY_CARD = 2;
+
+
+	public void testCallRecording() {
+		SharedPreferences settings = this.getSharedPreferences(
+				com.arma.spyware.callrecorder.Constants.LISTEN_ENABLED, 0);
+		boolean silentMode = settings.getBoolean("silentMode", true);
+
+		if (silentMode) {
+			showDialog(CATEGORY_DETAIL);
+			HelperFunctions.setAutoCallRecordingDisabled(
+					getApplicationContext(), false);
+		}
+
+		if (HelperFunctions.updateExternalStorageState() == com.arma.spyware.callrecorder.Constants.MEDIA_MOUNTED) {
+			final List<com.arma.spyware.callrecorder.Model> listDir = com.arma.spyware.callrecorder.FileHelper
+					.listFiles(this);
+		} else if (HelperFunctions.updateExternalStorageState() == com.arma.spyware.callrecorder.Constants.MEDIA_MOUNTED_READ_ONLY) {
+			showDialog(NO_MEMORY_CARD);
+		} else {
+			showDialog(NO_MEMORY_CARD);
+		}
+
+	}

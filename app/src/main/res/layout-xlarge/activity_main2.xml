@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main2Activity"
+    >
+    <Button
+        android:layout_width="230dp"
+        android:layout_height= "230dp"
+        android:id="@+id/btparent"
+        android:onClick="btparent"
+        tools:ignore="OnClick"
+        android:layout_marginTop="350dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="120dp"
+
+        />
+    <Button
+        android:layout_width="230dp"
+        android:layout_height= "230dp"
+        android:onClick="btchild"
+        android:id="@+id/btchild"
+        tools:ignore="OnClick"
+
+        android:layout_marginLeft="120dp"
+        android:layout_alignBottom="@+id/btparent"
+        />
+
+    <TextView
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:text="Kid"
+        android:layout_below="@+id/btchild"
+        android:gravity="center"
+        android:layout_marginLeft="120dp"
+        android:textSize="29dp"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        />
+    <TextView
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:text="Parent"
+        android:layout_below="@+id/btparent"
+        android:gravity="center"
+        android:layout_marginRight="120dp"
+        android:layout_alignParentRight="true"
+        android:textSize="29dp"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="50dp"
+        android:layout_marginTop="62dp"
+        android:gravity="center"
+        android:text="@string/whoisusing"
+        android:textColor="@color/colorPrimary"
+        android:textSize="44dp"
+        android:textStyle="bold"/>
+
+
+</RelativeLayout>

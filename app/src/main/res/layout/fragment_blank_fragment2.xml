@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#e9dec5">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sms Permission"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:id="@+id/txtpercall"
+        android:textColor="#732121"
+        android:textSize="27dp"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_below="@+id/txtpercall"
+        android:layout_marginTop="45dp"
+        android:id="@+id/call"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:layout_gravity="left"
+            android:text="We need this permission to access your kid's SMS and just when you activate the SMS option and give that permission you can access the SMS every moment and you just need to tap on the SMS button on your app."
+            android:textColor="#0c304e"
+            android:lineSpacingMultiplier="2"
+            />
+
+
+    </ScrollView>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Camera Permission"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:id="@+id/txtpercontact"
+        android:textColor="#732121"
+        android:layout_below="@+id/call"
+        android:layout_marginTop="30dp"
+        android:textSize="27dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtpercontact"
+        android:layout_marginTop="40dp"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:lineSpacingMultiplier="2"
+            android:text="We need this permission to take a picture of your kid's environment. So if you activate the camera and give that permission, it will send you a picture of surrounding if your kid phone's screen is on and he/she be online."
+            android:textColor="#0c304e" />
+
+
+    </ScrollView>
+
+</RelativeLayout>

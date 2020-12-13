@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#e9dec5">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location Permission"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:id="@+id/txtpercall"
+        android:textColor="#732121"
+        android:textSize="27dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+
+        android:layout_below="@+id/txtpercall"
+        android:layout_marginTop="45dp"
+        android:id="@+id/call"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:layout_gravity="left"
+            android:text="We need this permission to access your kid's location and just when you activate the location option and give that permission you can access the kid location every moment and you just need to tap on the location button on your app."
+            android:textColor="#0c304e"
+            android:lineSpacingMultiplier="2"
+
+            />
+
+
+    </ScrollView>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Telphone Permission"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:id="@+id/txtpercontact"
+        android:textColor="#732121"
+        android:layout_below="@+id/call"
+        android:layout_marginTop="30dp"
+        android:textSize="27dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtpercontact"
+        android:layout_marginTop="40dp"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:lineSpacingMultiplier="2"
+            android:text="1. If you choose the activate by IMEI option, We need this permission to receive your kid's phone IMEI
+2. We need this permission to read the app's name and information that exists on your kid's device. So we will show them to you to make a decision
+about a lock or unlock the apps.
+3. We want this permission for being able to identify the app that is running on your kid's device and lock or unlock it by your decision.
+"
+            android:textColor="#0c304e" />
+
+
+    </ScrollView>
+
+</RelativeLayout>
