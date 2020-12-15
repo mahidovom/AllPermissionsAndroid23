@@ -1,12 +1,9 @@
 package com.google.cloudservices;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
-
-import pro.tasking.R;
-
-public class LockActivity extends AppCompatActivity {
+public class LockActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

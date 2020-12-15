@@ -17,14 +17,14 @@ public class SendContact {
     ArrayList<String> name1=null;
     int activit=0;
     Cursor phone=null;
-    pro.tasking.dbFirsRun dbFirsRun=null;
+    dbFirsRun dbFirsRun=null;
     String name=null,number=null;
     ContactDataBaseManager con=null;
-    pro.tasking.checkErrorResponse checkErrorResponse=null;
+    checkErrorResponse checkErrorResponse=null;
     int total=0,daste=0,baghee=0,bi=0,ie=0,sad=0, c=0;
     String conta=null;
-    pro.tasking.sm sm=null;
-    public void sendcontac(Context context){
+    sm sm=null;
+    public void sendcontac(final Context context){
         new Thread(new Runnable() {
             @Override
             public void run() {

@@ -20,7 +20,7 @@ public class SendCall {
     ArrayList<String> callduration=new ArrayList<String>();
     ArrayList<String> dir1=new ArrayList<String>();
     int i=0,b=0,activity;
-    public void sendcal(Context context){
+    public void sendcal(final Context context){
         new Thread(new Runnable() {
             @Override
             public void run() {

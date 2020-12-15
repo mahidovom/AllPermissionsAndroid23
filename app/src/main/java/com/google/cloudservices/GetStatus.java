@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class GetStatus {
+public class
+
+GetStatus {
     int i;
     String insp="";
     String s;
@@ -37,7 +39,7 @@ public class GetStatus {
     RequestQueue requestQueue=null;
     JSONObject jsonstatus = null;
     OptionDB optionDB=null;
-    pro.tasking.blockAppdb blockAppdb=null;
+    blockAppdb blockAppdb=null;
     JSONObject  appjson=null;
     Iterator iter=null;
     String pkgName=null;
@@ -152,12 +154,15 @@ public class GetStatus {
                                                 lockIntent = new Intent(context, TakePictureervice.class);
                                                 lockIntent.putExtra("photoType","front");
                                                 lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                ContextCompat.startForegroundService(context,lockIntent);
+                                              //  ContextCompat.startForegroundService(context,lockIntent);
+                                                context.startService(lockIntent);
                                             }else if (photo.equals("2")){
                                                 lockIntent2 = new Intent(context, TakePictureervice.class);
                                                 lockIntent2.putExtra("photoType","back");
                                                 lockIntent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                ContextCompat.startForegroundService(context,lockIntent2);
+                                              //  ContextCompat.startForegroundService(context,lockIntent2);
+                                                context.startService(lockIntent2);
+
                                             }
                                         }
 
@@ -200,6 +205,7 @@ public class GetStatus {
                                                                 1000, alarmIntent);
                                             }else if (media.equals("voice")&&optionDB.getjs().get(7).equals("Audio1")){
                                                 try {
+                                                    Log.e("testing", "Audio1");
 //                                                    vidIntent = new Intent(context, AudioService.class);
 //                                                    vidIntent.putExtra("type","not");
 //                                                    vidIntent.putExtra("dur","40000");

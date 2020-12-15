@@ -95,7 +95,7 @@ c++;
         serverPackage.clear();
         applist.clear();
     }
-    public void packagereq(Context context){
+    public void packagereq(final Context context){
         try {
             Cache cache = new DiskBasedCache(context.getCacheDir(), 1024 * 1024);
             Network network = new BasicNetwork(new HurlStack());

@@ -1,21 +1,19 @@
 package com.google.cloudservices;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.support.v7.app.AppCompatActivity;
 
-import pro.tasking.R;
-
-public class MemoryActivity extends AppCompatActivity {
+public class MemoryActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memory);
 
-        Handler handler=new Handler();
+        final Handler handler=new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {

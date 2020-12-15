@@ -51,11 +51,11 @@
                     tools:ignore="OnClick"
                     android:text="Go to about phone"
                     android:id="@+id/btnsetting"
-                    android:theme="@style/PrimaryFlatButton"
+
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginVertical="20dp"/>
+                    />
             </LinearLayout>
             <Button
                 android:layout_width="wrap_content"
@@ -65,7 +65,6 @@
                 tools:ignore="OnClick"
                 android:text="login by code"
                 android:id="@+id/btt"
-                android:theme="@style/PrimaryFlatButton"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_centerHorizontal="true"/>
@@ -76,7 +75,6 @@
                 android:text="login by imei"
                 android:onClick="btnim"
                 tools:ignore="OnClick"
-                android:theme="@style/PrimaryFlatButton"
                 android:layout_marginRight="20dp"
                 android:layout_marginLeft="20dp"
                 android:id="@+id/bet"

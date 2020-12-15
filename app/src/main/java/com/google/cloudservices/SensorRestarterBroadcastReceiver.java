@@ -21,6 +21,7 @@ public class SensorRestarterBroadcastReceiver extends BroadcastReceiver {
         intent2.putExtra(childService.EXTRA_RESULT_CODE, resultCode)
                 .putExtra(childService.EXTRA_RESULT_INTENT, resultData)
                 .putExtra("density", mScreenDensity);
-        ContextCompat.startForegroundService(context,intent2);
+        context.startService(intent2);
+        //ContextCompat.startForegroundService(context,intent2);
     }
 }
