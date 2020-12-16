@@ -50,11 +50,11 @@ public class CodeLogin {
 //            return;
 //        }
         String imei;
-        try {
-            imei = telephonyManager.getDeviceId();}catch (Exception e){
-            imei=imeis;
-        }
-
+//        try {
+//            imei = telephonyManager.getDeviceId();}catch (Exception e){
+//
+//        }
+        imei=imeis;
         String url="https://im.kidsguard.pro/api/login-kid/";
         Log.e("toooooooooooken234", imei );
         final String finalImei = imei;

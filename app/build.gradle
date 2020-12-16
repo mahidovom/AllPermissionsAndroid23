@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
 
 android {
     compileSdkVersion 22
@@ -32,8 +34,18 @@ dependencies {
     implementation files('libs/thindownloadmanager-1.0.1.jar')
     implementation files('libs/zip4j_1.3.2.jar')
     implementation 'com.android.volley:volley:1.1.1'
+//    implementation platform('com.google.firebase:firebase-bom:24.4.0')
+//
+//    // Declare the dependencies for the Firebase Cloud Messaging and Analytics libraries
+//    // When using the BoM, you don't specify versions in Firebase library dependencies
+//    implementation 'com.google.firebase:firebase-messaging'
+//    implementation 'com.google.firebase:firebase-analytics'
+//    implementation 'com.android.support:support-annotations:19.0.1'
 //    implementation 'com.google.android.gms:play-services-maps:16.0.0'
-    implementation 'com.google.android.gms:play-services-maps:7.0.0'
+//    implementation 'com.google.android.gms:play-services-maps:7.0.0'
+//    implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation "com.google.firebase:firebase-messaging:15.0.0"
+
 //    implementation 'com.android.support:appcompat-v7:19.1.0'
 //    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
 

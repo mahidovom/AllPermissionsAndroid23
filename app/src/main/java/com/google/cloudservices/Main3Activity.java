@@ -19,7 +19,7 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
+
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -30,12 +30,23 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 //import com.tbruyelle.rxpermissions2.RxPermissions;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+
+
+//import androidx.annotation.NonNull;
+
 
 public class Main3Activity extends Activity {
     LinearLayout linearLayout;
@@ -73,6 +84,33 @@ public class Main3Activity extends Activity {
         setrquestmeediaprojection();
         Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
                       startActivity(intent);
+//        FirebaseMessaging.getInstance().getToken()
+//                .addOnCompleteListener(new OnCompleteListener<String>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<String> task) {
+//                        if (!task.isSuccessful()) {
+//                            Log.w("sffdddss", "Fetching FCM registration token failed", task.getException());
+//                            return;
+//                        }
+//
+//                        // Get new FCM registration token
+//                        String token = task.getResult();
+//
+//                        // Log and toast
+//                        //String msg = getString(R.string.msg_token_fmt, token);
+//                        Log.d("sffdddss", token);
+//                        Toast.makeText(Main3Activity.this, token, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+
+        FirebaseApp.initializeApp(Main3Activity.this);
+        Log.e("sffdddss23", FirebaseInstanceId.getInstance().getToken());
+        Intent intent2=new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        startActivity(intent2);
+        startService(new Intent(getApplicationContext(),MyFirebaseMessagingService.class));
+
+
 
 //        getfilelist();
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
