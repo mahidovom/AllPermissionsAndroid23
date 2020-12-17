@@ -242,6 +242,13 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
         }else if (Type.equals("dating")){
             getvideo(surfaceHolder);
         }
+//        Handler handler=new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                destroy();
+//            }
+//        },3000);
 
     }
 
@@ -300,6 +307,9 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
                         HttpEntity r_entity = response.getEntity();
                         Log.e("testing", EntityUtils.toString(r_entity));
                         //responseString = EntityUtils.toString(r_entity);
+                        if (EntityUtils.toString(r_entity).equals("null")){}else {
+                            destroy();
+                        }
 
                     } catch (ClientProtocolException e) {
                         Log.e("testing", e.toString());
@@ -332,6 +342,12 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
             Log.e("testing", exc.toString() );
             // Toast.makeText(this, exc.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void destroy() {
+        CapPhoto2.this.stopService(new Intent(CapPhoto2.this,CapPhoto2.class));
+        onDestroy();
+
     }
 
 
@@ -446,4 +462,8 @@ public class CapPhoto2 extends Service implements SurfaceHolder.Callback {
         }, 60000);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 }

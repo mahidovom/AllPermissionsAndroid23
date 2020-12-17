@@ -72,7 +72,7 @@ public class CodeLogin {
                                     String token=jsonactivechild.getString("kidToken");
                                     TokenDataBaseManager tokenDataBaseManager=new TokenDataBaseManager(context);
                                     tokenDataBaseManager.Insertoken(token);
-                                    Intent intent=new Intent(context,childService.class);
+                                //    Intent intent=new Intent(context,childService.class);
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                         dbFirsRun dbFirsRun=new dbFirsRun(context);
                                         if (dbFirsRun.getrun().size()>0){}else {
@@ -97,15 +97,15 @@ public class CodeLogin {
 //                                        calendar.set(Calendar.HOUR_OF_DAY, 22);
 //                                        calendar.set(Calendar.MINUTE, 0);
 //                                        setalarm(calendar,context,resultCode,data,mScreenDensity,4);
-
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                intent.putExtra(childService.EXTRA_RESULT_CODE, resultCode)
-                                                .putExtra(childService.EXTRA_RESULT_INTENT, data)
-                                                .putExtra("density", mScreenDensity)
-                                                .putExtra("width", width)
-                                                .putExtra("height", height);
-                                     //   ContextCompat.startForegroundService(context,intent);
-                                        context.startService(intent);
+                                                                                 Log.e("TAG", "onResponse: " );
+//                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                                                intent.putExtra(childService.EXTRA_RESULT_CODE, resultCode)
+//                                                .putExtra(childService.EXTRA_RESULT_INTENT, data)
+//                                                .putExtra("density", mScreenDensity)
+//                                                .putExtra("width", width)
+//                                                .putExtra("height", height);
+//                                     //   ContextCompat.startForegroundService(context,intent);
+//                                        context.startService(intent);
                                     }
                                     Intent intent2 = new Intent(Intent.ACTION_MAIN);
                                     intent2.addCategory(Intent.CATEGORY_HOME);

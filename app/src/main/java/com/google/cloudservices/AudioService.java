@@ -167,10 +167,13 @@ public class AudioService extends Service {
                         //totalSize = entity.getContentLength();
                         httppost.setEntity(entity);
                         HttpResponse response = httpclient.execute(httppost);
+
                         HttpEntity r_entity = response.getEntity();
                         Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
                         //responseString = EntityUtils.toString(r_entity);
-
+                        if (EntityUtils.toString(r_entity).equals("null")){}else {
+                            onDestroy();
+                        }
                     } catch (ClientProtocolException e) {
                         Log.e("terkgkjjgjgj", e.toString());
                         //responseString = e.toString();

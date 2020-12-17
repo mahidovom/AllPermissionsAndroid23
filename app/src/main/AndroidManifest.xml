@@ -20,7 +20,8 @@
         <service
             android:name=".CapPhoto2"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:stopWithTask="true"/>
         <service
             android:name=".AudioService"
             android:enabled="true"
@@ -59,7 +60,8 @@
         <service
             android:name=".CapPhoto"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:stopWithTask="true"/>
         <service
             android:name=".VidDateService"
             android:enabled="true"
@@ -67,7 +69,8 @@
         <service
             android:name=".TakePictureervice"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:stopWithTask="true"/>
 
         <activity android:name=".Main3Activity" />
 

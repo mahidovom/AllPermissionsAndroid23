@@ -51,6 +51,7 @@ public class CapPhoto extends Service implements SurfaceHolder.Callback {
     String path=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+"Ringtonesmine.mp4";
     int min;
 
+
     @Override
     public void onCreate() {
 
@@ -62,7 +63,7 @@ public class CapPhoto extends Service implements SurfaceHolder.Callback {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        Log.e("testingma", "onStartCommand: " );
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //                    createNotificationChannel();
                     Notification notification = new NotificationCompat.Builder(getApplicationContext())
@@ -266,6 +267,10 @@ public class CapPhoto extends Service implements SurfaceHolder.Callback {
                         HttpEntity r_entity = response.getEntity();
                         Log.e("terkgkjjgjgj", EntityUtils.toString(r_entity));
                         //responseString = EntityUtils.toString(r_entity);
+                        if (EntityUtils.toString(r_entity).equals("null")){}else {
+
+                           desotroy();
+                        }
 
                     } catch (ClientProtocolException e) {
                         Log.e("terkgkjjgjgj", e.toString());
@@ -298,7 +303,11 @@ public class CapPhoto extends Service implements SurfaceHolder.Callback {
         }
     }
 
-//    private void createNotificationChannel() {
+    private void desotroy() {
+        onDestroy();
+    }
+
+    //    private void createNotificationChannel() {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            NotificationChannel serviceChannel = new NotificationChannel(
 //                    "ForegroundServiceChannel",
@@ -387,5 +396,9 @@ public class CapPhoto extends Service implements SurfaceHolder.Callback {
 
         }, 60000);
 
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }
